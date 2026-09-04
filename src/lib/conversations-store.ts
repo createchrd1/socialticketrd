@@ -98,6 +98,14 @@ let rules: PriorityRule[] = [];
 let ready = false;
 const listeners = new Set<() => void>();
 const arrivalListeners = new Set<(c: Conversation) => void>();
+const avisados = new Set<string>();
+
+function anunciar(conversationId: string, key: string) {
+  if (avisados.has(key)) return;
+  avisados.add(key);
+  const conv = conversations.find((c) => c.id === conversationId);
+  if (conv) for (const l of arrivalListeners) l(conv);
+}
 
 function emit() {
   for (const l of listeners) l();
@@ -193,8 +201,7 @@ export function startSync() {
         const row = payload.new as MessageRow;
         await refreshAll();
         if (row.sender !== "cliente") return;
-        const conv = conversations.find((c) => c.id === row.conversation_id);
-        if (conv) for (const l of arrivalListeners) l(conv);
+        anunciar(row.conversation_id, row.id);
       },
     )
     .on("postgres_changes", { event: "*", schema: "public", table: "priority_rules" }, () => {
@@ -266,7 +273,10 @@ export async function receiveDemoMessage() {
     body: sample.text,
   });
   await refreshAll();
-  return data.id as string;
+  const id = data.id as string;
+  const nueva = conversations.find((c) => c.id === id);
+  anunciar(id, nueva?.messages[0]?.id ?? id);
+  return id;
 }
 
 export async function saveRule(rule: Omit<PriorityRule, "id"> & { id?: string }) {
