@@ -211,12 +211,18 @@ export function startSync() {
 export async function updateConversation(id: string, patch: Partial<Conversation>) {
   conversations = conversations.map((c) => (c.id === id ? { ...c, ...patch } : c));
   emit();
-  const row: Record<string, unknown> = {};
-  if (patch.unread !== undefined) row['unread'] = patch.unread;
-  if (patch.status !== undefined) row['status'] = patch.status;
-  if (patch.priority !== undefined) row['priority'] = patch.priority;
-  if (patch.assignee !== undefined) row['assignee'] = patch.assignee;
-  if (patch.tags !== undefined) row['tags'] = patch.tags;
+  const row: {
+    unread?: boolean;
+    status?: string;
+    priority?: string;
+    assignee?: string | null;
+    tags?: string[];
+  } = {};
+  if (patch.unread !== undefined) row.unread = patch.unread;
+  if (patch.status !== undefined) row.status = patch.status;
+  if (patch.priority !== undefined) row.priority = patch.priority;
+  if (patch.assignee !== undefined) row.assignee = patch.assignee;
+  if (patch.tags !== undefined) row.tags = patch.tags;
   if (Object.keys(row).length === 0) return;
   await supabase.from("conversations").update(row).eq("id", id);
 }

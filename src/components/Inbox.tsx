@@ -16,12 +16,13 @@ import {
 import { suggestReply } from "@/lib/ai.functions";
 import { PriorityBadge } from "@/components/PriorityBadge";
 import {
-  appendMessage,
   focusConversation,
   sortByPriority,
   updateConversation,
   useConversations,
   useFocusId,
+  useReady,
+  sendReply,
 } from "@/lib/conversations-store";
 import {
   allTags,
@@ -55,6 +56,7 @@ const filters: Array<{ id: Network | "todas"; label: string }> = [
 
 export function Inbox({ channel }: { channel?: Network }) {
   const items = useConversations();
+  const ready = useReady();
   const focusId = useFocusId();
   const [activeId, setActiveId] = useState<string | null>(null);
   const [priorityFilter, setPriorityFilter] = useState<Priority | "todas">("todas");
@@ -93,24 +95,20 @@ export function Inbox({ channel }: { channel?: Network }) {
     if (!scoped.some((c) => c.id === focusId)) return;
     setActiveId(focusId);
     setDraft("");
-    updateConversation(focusId, { unread: false });
+    void updateConversation(focusId, { unread: false });
     focusConversation(null);
   }, [focusId, scoped]);
 
   const active = scoped.find((c) => c.id === activeId) ?? visible[0] ?? scoped[0] ?? null;
   const pendientes = scoped.filter((c) => c.status === "pendiente").length;
 
-  const send = () => {
+  const send = async () => {
     if (!draft.trim() || !active) return;
-    updateConversation(active.id, { unread: false, status: "en_proceso" });
-    appendMessage(active.id, {
-      id: crypto.randomUUID(),
-      from: "yo",
-      text: draft.trim(),
-      at: new Date().toLocaleTimeString("es-BO", { hour: "2-digit", minute: "2-digit" }),
-    });
+    const texto = draft.trim();
+    const red = networkLabels[active.network];
     setDraft("");
-    toast.success(`Respuesta enviada por ${networkLabels[active.network]}`);
+    await sendReply(active.id, texto);
+    toast.success(`Respuesta enviada por ${red} y guardada en la nube`);
   };
 
   const suggest = async () => {
@@ -187,7 +185,9 @@ export function Inbox({ channel }: { channel?: Network }) {
       <div className="grid gap-4 lg:grid-cols-[360px_1fr]">
         <section className="panel max-h-[72vh] overflow-y-auto p-2">
           {visible.length === 0 && (
-            <p className="p-6 text-center text-sm text-muted-foreground">Sin conversaciones aquí.</p>
+            <p className="p-6 text-center text-sm text-muted-foreground">
+              {ready ? "Sin conversaciones aquí." : "Cargando conversaciones…"}
+            </p>
           )}
           {visible.map((c) => (
             <button
@@ -195,7 +195,7 @@ export function Inbox({ channel }: { channel?: Network }) {
               onClick={() => {
                 setActiveId(c.id);
                 setDraft("");
-                updateConversation(c.id, { unread: false });
+                void updateConversation(c.id, { unread: false });
               }}
               className={`mb-1 flex w-full gap-3 rounded-lg p-3 text-left transition-colors ${
                 c.id === active?.id ? "bg-surface-2" : "hover:bg-surface-2/60"
@@ -270,7 +270,7 @@ export function Inbox({ channel }: { channel?: Network }) {
                       {(["alta", "media", "baja"] as const).map((p) => (
                         <DropdownMenuItem
                           key={p}
-                          onClick={() => updateConversation(active.id, { priority: p })}
+                          onClick={() => void updateConversation(active.id, { priority: p })}
                         >
                           {active.priority === p && <Check className="mr-2 h-3.5 w-3.5" />}
                           {priorityLabels[p]}
@@ -290,13 +290,13 @@ export function Inbox({ channel }: { channel?: Network }) {
                       {team.map((p) => (
                         <DropdownMenuItem
                           key={p}
-                          onClick={() => updateConversation(active.id, { assignee: p })}
+                          onClick={() => void updateConversation(active.id, { assignee: p })}
                         >
                           {p}
                         </DropdownMenuItem>
                       ))}
                       <DropdownMenuItem
-                        onClick={() => updateConversation(active.id, { assignee: null })}
+                        onClick={() => void updateConversation(active.id, { assignee: null })}
                       >
                         Sin asignar
                       </DropdownMenuItem>
@@ -315,7 +315,7 @@ export function Inbox({ channel }: { channel?: Network }) {
                         <DropdownMenuItem
                           key={t}
                           onClick={() =>
-                            updateConversation(active.id, {
+                            void updateConversation(active.id, {
                               tags: active.tags.includes(t)
                                 ? active.tags.filter((x) => x !== t)
                                 : [...active.tags, t],
@@ -380,7 +380,7 @@ export function Inbox({ channel }: { channel?: Network }) {
                     )}
                     Sugerir respuesta
                   </Button>
-                  <Button size="sm" onClick={send} disabled={!draft.trim()}>
+                  <Button size="sm" onClick={() => void send()} disabled={!draft.trim()}>
                     <Send className="mr-1.5 h-3.5 w-3.5" />
                     Enviar
                   </Button>
