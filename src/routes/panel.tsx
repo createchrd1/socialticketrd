@@ -13,7 +13,8 @@ import {
 import { MessageSquare, Timer, Users, TrendingUp } from "lucide-react";
 
 import { AppShell } from "@/components/AppShell";
-import { conversations, followerTrend, weeklyVolume } from "@/lib/demo-data";
+import { followerTrend, weeklyVolume } from "@/lib/demo-data";
+import { useConversations } from "@/lib/conversations-store";
 
 export const Route = createFileRoute("/panel")({
   head: () => ({
@@ -42,6 +43,7 @@ const cards = [
 ];
 
 function Panel() {
+  const conversations = useConversations();
   const pendientes = conversations.filter((c) => c.status === "pendiente").length;
 
   return (
