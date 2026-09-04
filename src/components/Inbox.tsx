@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { suggestReply } from "@/lib/ai.functions";
 import { PriorityBadge } from "@/components/PriorityBadge";
+import { platformLabels, startAdsSync, useCampaigns } from "@/lib/ads-store";
 import {
   focusConversation,
   sortByPriority,
@@ -256,6 +257,14 @@ export function Inbox({ channel }: { channel?: Network }) {
                   </div>
                   <p className="text-xs text-muted-foreground">
                     {active.handle} · {active.kind}
+                    {campaign && (
+                      <>
+                        {" · llegó desde "}
+                        <span className="text-accent">
+                          {platformLabels[campaign.platform]}: {campaign.name}
+                        </span>
+                      </>
+                    )}
                   </p>
                 </div>
                 <div className="ml-auto flex flex-wrap items-center gap-2">
