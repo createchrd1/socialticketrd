@@ -10,12 +10,18 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as HistorialRouteImport } from './routes/historial'
 import { Route as PanelRouteImport } from './routes/panel'
 import { Route as CanalNetworkRouteImport } from './routes/canal.$network'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HistorialRoute = HistorialRouteImport.update({
+  id: '/historial',
+  path: '/historial',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PanelRoute = PanelRouteImport.update({
@@ -31,30 +37,34 @@ const CanalNetworkRoute = CanalNetworkRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/historial': typeof HistorialRoute
   '/panel': typeof PanelRoute
   '/canal/$network': typeof CanalNetworkRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/historial': typeof HistorialRoute
   '/panel': typeof PanelRoute
   '/canal/$network': typeof CanalNetworkRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/historial': typeof HistorialRoute
   '/panel': typeof PanelRoute
   '/canal/$network': typeof CanalNetworkRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/panel' | '/canal/$network'
+  fullPaths: '/' | '/historial' | '/panel' | '/canal/$network'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/panel' | '/canal/$network'
-  id: '__root__' | '/' | '/panel' | '/canal/$network'
+  to: '/' | '/historial' | '/panel' | '/canal/$network'
+  id: '__root__' | '/' | '/historial' | '/panel' | '/canal/$network'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  HistorialRoute: typeof HistorialRoute
   PanelRoute: typeof PanelRoute
   CanalNetworkRoute: typeof CanalNetworkRoute
 }
@@ -66,6 +76,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/historial': {
+      id: '/historial'
+      path: '/historial'
+      fullPath: '/historial'
+      preLoaderRoute: typeof HistorialRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/panel': {
@@ -87,6 +104,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  HistorialRoute: HistorialRoute,
   PanelRoute: PanelRoute,
   CanalNetworkRoute: CanalNetworkRoute,
 }
