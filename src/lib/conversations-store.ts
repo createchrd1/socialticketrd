@@ -16,6 +16,7 @@ type ConversationRow = {
   priority: string;
   assignee: string | null;
   tags: string[];
+  campaign_id: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -71,6 +72,7 @@ function toConversation(row: ConversationRow, messages: MessageRow[]): Conversat
     priority: row.priority as Priority,
     assignee: row.assignee,
     tags: row.tags ?? [],
+    campaignId: row.campaign_id ?? null,
     messages: own.map((m) => ({
       id: m.id,
       from: m.sender === "yo" ? "yo" : "cliente",
@@ -245,6 +247,14 @@ export function priorityForIncoming(input: { network: Conversation["network"]; k
 }
 
 export async function receiveDemoMessage() {
+  const { data: activas } = await supabase
+    .from("ad_campaigns")
+    .select("id")
+    .eq("status", "activa");
+  const campaignId =
+    activas && activas.length > 0 && Math.random() < 0.7
+      ? activas[Math.floor(Math.random() * activas.length)]!.id
+      : null;
   const sample = incomingSamples[Math.floor(Math.random() * incomingSamples.length)]!;
   const match = priorityForIncoming({
     network: sample.network,
@@ -263,6 +273,7 @@ export async function receiveDemoMessage() {
       status: "pendiente",
       priority: match?.priority ?? sample.priority,
       tags: sample.tags,
+      campaign_id: campaignId,
     })
     .select("id")
     .single();
