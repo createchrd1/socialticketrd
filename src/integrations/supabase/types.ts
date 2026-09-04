@@ -14,7 +14,122 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      conversations: {
+        Row: {
+          assignee: string | null
+          avatar_color: string
+          created_at: string
+          handle: string
+          id: string
+          kind: string
+          network: string
+          person: string
+          priority: string
+          status: string
+          tags: string[]
+          unread: boolean
+          updated_at: string
+        }
+        Insert: {
+          assignee?: string | null
+          avatar_color?: string
+          created_at?: string
+          handle?: string
+          id?: string
+          kind?: string
+          network: string
+          person: string
+          priority?: string
+          status?: string
+          tags?: string[]
+          unread?: boolean
+          updated_at?: string
+        }
+        Update: {
+          assignee?: string | null
+          avatar_color?: string
+          created_at?: string
+          handle?: string
+          id?: string
+          kind?: string
+          network?: string
+          person?: string
+          priority?: string
+          status?: string
+          tags?: string[]
+          unread?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      messages: {
+        Row: {
+          body: string
+          conversation_id: string
+          created_at: string
+          id: string
+          sender: string
+        }
+        Insert: {
+          body: string
+          conversation_id: string
+          created_at?: string
+          id?: string
+          sender?: string
+        }
+        Update: {
+          body?: string
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          sender?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      priority_rules: {
+        Row: {
+          created_at: string
+          enabled: boolean
+          id: string
+          keywords: string[]
+          name: string
+          network: string | null
+          position: number
+          priority: string
+          sender_kind: string | null
+        }
+        Insert: {
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          keywords?: string[]
+          name: string
+          network?: string | null
+          position?: number
+          priority?: string
+          sender_kind?: string | null
+        }
+        Update: {
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          keywords?: string[]
+          name?: string
+          network?: string | null
+          position?: number
+          priority?: string
+          sender_kind?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
