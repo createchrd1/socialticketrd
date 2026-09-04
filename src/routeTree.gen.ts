@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PanelRouteImport } from './routes/panel'
+import { Route as CanalNetworkRouteImport } from './routes/canal.$network'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -22,31 +23,40 @@ const PanelRoute = PanelRouteImport.update({
   path: '/panel',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CanalNetworkRoute = CanalNetworkRouteImport.update({
+  id: '/canal/$network',
+  path: '/canal/$network',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/panel': typeof PanelRoute
+  '/canal/$network': typeof CanalNetworkRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/panel': typeof PanelRoute
+  '/canal/$network': typeof CanalNetworkRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/panel': typeof PanelRoute
+  '/canal/$network': typeof CanalNetworkRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/panel'
+  fullPaths: '/' | '/panel' | '/canal/$network'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/panel'
-  id: '__root__' | '/' | '/panel'
+  to: '/' | '/panel' | '/canal/$network'
+  id: '__root__' | '/' | '/panel' | '/canal/$network'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   PanelRoute: typeof PanelRoute
+  CanalNetworkRoute: typeof CanalNetworkRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -65,12 +75,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PanelRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/canal/$network': {
+      id: '/canal/$network'
+      path: '/canal/$network'
+      fullPath: '/canal/$network'
+      preLoaderRoute: typeof CanalNetworkRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   PanelRoute: PanelRoute,
+  CanalNetworkRoute: CanalNetworkRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
