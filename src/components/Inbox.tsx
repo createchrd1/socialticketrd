@@ -66,6 +66,9 @@ export function Inbox({ channel }: { channel?: Network }) {
   const [draft, setDraft] = useState("");
   const [loadingAi, setLoadingAi] = useState(false);
   const askAi = useServerFn(suggestReply);
+  const campaigns = useCampaigns();
+
+  useEffect(() => startAdsSync(), []);
 
   const scoped = useMemo(
     () => (channel ? items.filter((c) => c.network === channel) : items),
@@ -101,6 +104,8 @@ export function Inbox({ channel }: { channel?: Network }) {
   }, [focusId, scoped]);
 
   const active = scoped.find((c) => c.id === activeId) ?? visible[0] ?? scoped[0] ?? null;
+
+  const campaign = campaigns.find((c) => c.id === active?.campaignId) ?? null;
   const pendientes = scoped.filter((c) => c.status === "pendiente").length;
 
   const send = async () => {
