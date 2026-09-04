@@ -333,7 +333,7 @@ export function Inbox({ channel }: { channel?: Network }) {
                     variant={active.status === "resuelto" ? "secondary" : "default"}
                     size="sm"
                     onClick={() =>
-                      updateConversation(active.id, {
+                      void updateConversation(active.id, {
                         status: active.status === "resuelto" ? "pendiente" : "resuelto",
                       })
                     }
