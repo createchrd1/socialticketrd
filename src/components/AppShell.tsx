@@ -1,10 +1,11 @@
 import { Link } from "@tanstack/react-router";
-import { Inbox, BarChart3, Radio, History, BellRing } from "lucide-react";
+import { Inbox, BarChart3, Radio, History, BellRing, SlidersHorizontal } from "lucide-react";
 import type { ReactNode } from "react";
 
 import { NetworkIcon } from "@/components/NetworkBadge";
 import { NewMessageWatcher } from "@/components/NewMessageWatcher";
 import { Button } from "@/components/ui/button";
+import { NotificationsButton } from "@/components/NotificationsButton";
 import { receiveDemoMessage, useConversations } from "@/lib/conversations-store";
 import { networkLabels, type Network } from "@/lib/demo-data";
 
@@ -53,6 +54,13 @@ export function AppShell({ children }: { children: ReactNode }) {
               <span className="hidden md:inline">Historial</span>
             </Link>
             <Link
+              to="/reglas"
+              className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground data-[status=active]:bg-secondary data-[status=active]:text-foreground"
+            >
+              <SlidersHorizontal className="h-4 w-4" />
+              <span className="hidden lg:inline">Reglas</span>
+            </Link>
+            <Link
               to="/panel"
               className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground data-[status=active]:bg-secondary data-[status=active]:text-foreground"
             >
@@ -67,7 +75,8 @@ export function AppShell({ children }: { children: ReactNode }) {
                 {sinLeer} sin leer
               </span>
             )}
-            <Button variant="outline" size="sm" onClick={() => receiveDemoMessage()}>
+            <NotificationsButton />
+            <Button variant="outline" size="sm" onClick={() => void receiveDemoMessage()}>
               Simular mensaje
             </Button>
             <span className="hidden rounded-full border border-border px-3 py-1 text-xs text-muted-foreground sm:inline">
