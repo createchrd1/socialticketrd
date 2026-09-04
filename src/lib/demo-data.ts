@@ -9,6 +9,8 @@ export type Message = {
   at: string;
 };
 
+export type Priority = "alta" | "media" | "baja";
+
 export type Conversation = {
   id: string;
   network: Network;
@@ -19,6 +21,7 @@ export type Conversation = {
   lastAt: string;
   unread: boolean;
   status: Status;
+  priority: Priority;
   assignee: string | null;
   tags: string[];
   messages: Message[];
@@ -46,6 +49,7 @@ export const conversations: Conversation[] = [
     lastAt: "hace 4 min",
     unread: true,
     status: "pendiente",
+    priority: "alta",
     assignee: null,
     tags: ["venta"],
     messages: [
@@ -63,6 +67,7 @@ export const conversations: Conversation[] = [
     lastAt: "hace 22 min",
     unread: true,
     status: "pendiente",
+    priority: "alta",
     assignee: "Camila",
     tags: ["queja"],
     messages: [
@@ -79,6 +84,7 @@ export const conversations: Conversation[] = [
     lastAt: "hace 1 h",
     unread: false,
     status: "en_proceso",
+    priority: "media",
     assignee: "Antonio",
     tags: ["colaboración"],
     messages: [
@@ -96,6 +102,7 @@ export const conversations: Conversation[] = [
     lastAt: "hace 2 h",
     unread: false,
     status: "pendiente",
+    priority: "baja",
     assignee: null,
     tags: ["soporte"],
     messages: [
@@ -112,6 +119,7 @@ export const conversations: Conversation[] = [
     lastAt: "ayer",
     unread: false,
     status: "resuelto",
+    priority: "baja",
     assignee: "Marco",
     tags: ["envío"],
     messages: [
@@ -130,11 +138,76 @@ export const conversations: Conversation[] = [
     lastAt: "ayer",
     unread: false,
     status: "en_proceso",
+    priority: "media",
     assignee: "Camila",
     tags: ["venta", "envío"],
     messages: [
       { id: "m1", from: "cliente", text: "Quiero pedir 3 unidades para regalo de empresa, ¿hacen factura?", at: "15:02" },
     ],
+  },
+];
+
+export const priorityLabels: Record<Priority, string> = {
+  alta: "Alta",
+  media: "Media",
+  baja: "Baja",
+};
+
+export const priorityRank: Record<Priority, number> = { alta: 0, media: 1, baja: 2 };
+
+export const incomingSamples: Array<{
+  network: Network;
+  kind: Conversation["kind"];
+  person: string;
+  handle: string;
+  priority: Priority;
+  tags: string[];
+  text: string;
+}> = [
+  {
+    network: "instagram",
+    kind: "mensaje",
+    person: "Paola Mendoza",
+    handle: "@paomendoza",
+    priority: "alta",
+    tags: ["venta"],
+    text: "¿Todavía tienen la mochila negra? La necesito para mañana.",
+  },
+  {
+    network: "facebook",
+    kind: "comentario",
+    person: "Luis Carrasco",
+    handle: "Luis C.",
+    priority: "media",
+    tags: ["soporte"],
+    text: "¿Atienden los domingos en la sucursal del centro?",
+  },
+  {
+    network: "x",
+    kind: "mencion",
+    person: "Ruta Digital",
+    handle: "@rutadigital",
+    priority: "media",
+    tags: ["colaboración"],
+    text: "Los mencionamos en nuestro top de marcas bolivianas, ¡felicidades!",
+  },
+  {
+    network: "tiktok",
+    kind: "comentario",
+    person: "kevin.rojas",
+    handle: "@kevin.rojas",
+    priority: "baja",
+    tags: ["venta"],
+    text: "¿Cuánto cuesta el combo que sale en el video?",
+  },
+  {
+    network: "instagram",
+    kind: "mensaje",
+    person: "Gabriela Soto",
+    handle: "@gabisoto",
+    priority: "alta",
+    tags: ["queja"],
+    text: "Me llegó el pedido con una pieza dañada, ¿cómo lo solucionamos?",
   },
 ];
 

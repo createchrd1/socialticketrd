@@ -1,6 +1,6 @@
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useMemo, useState } from "react";
-import { Send, Sparkles, Check, Loader2, Search, Tag, UserPlus } from "lucide-react";
+import { Send, Sparkles, Check, Loader2, Search, Tag, UserPlus, Flag } from "lucide-react";
 import { toast } from "sonner";
 
 import { NetworkBadge, NetworkIcon } from "@/components/NetworkBadge";
@@ -14,8 +14,24 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { suggestReply } from "@/lib/ai.functions";
-import { useConversations, updateConversation } from "@/lib/conversations-store";
-import { allTags, networkLabels, team, type Network, type Status } from "@/lib/demo-data";
+import { PriorityBadge } from "@/components/PriorityBadge";
+import {
+  appendMessage,
+  focusConversation,
+  sortByPriority,
+  updateConversation,
+  useConversations,
+  useFocusId,
+} from "@/lib/conversations-store";
+import {
+  allTags,
+  networkLabels,
+  priorityLabels,
+  team,
+  type Network,
+  type Priority,
+  type Status,
+} from "@/lib/demo-data";
 
 const statusLabels: Record<Status, string> = {
   pendiente: "Pendiente",
@@ -39,7 +55,9 @@ const filters: Array<{ id: Network | "todas"; label: string }> = [
 
 export function Inbox({ channel }: { channel?: Network }) {
   const items = useConversations();
+  const focusId = useFocusId();
   const [activeId, setActiveId] = useState<string | null>(null);
+  const [priorityFilter, setPriorityFilter] = useState<Priority | "todas">("todas");
   const [filter, setFilter] = useState<Network | "todas">("todas");
   const [query, setQuery] = useState("");
   const [draft, setDraft] = useState("");
@@ -53,15 +71,16 @@ export function Inbox({ channel }: { channel?: Network }) {
 
   const visible = useMemo(
     () =>
-      scoped.filter(
+      sortByPriority(scoped).filter(
         (c) =>
           (channel || filter === "todas" || c.network === filter) &&
+          (priorityFilter === "todas" || c.priority === priorityFilter) &&
           (query.trim() === "" ||
             (c.person + c.handle + c.messages.map((m) => m.text).join(" "))
               .toLowerCase()
               .includes(query.toLowerCase())),
       ),
-    [scoped, filter, query, channel],
+    [scoped, filter, priorityFilter, query, channel],
   );
 
   useEffect(() => {
@@ -69,23 +88,26 @@ export function Inbox({ channel }: { channel?: Network }) {
     setDraft("");
   }, [channel]);
 
+  useEffect(() => {
+    if (!focusId) return;
+    if (!scoped.some((c) => c.id === focusId)) return;
+    setActiveId(focusId);
+    setDraft("");
+    updateConversation(focusId, { unread: false });
+    focusConversation(null);
+  }, [focusId, scoped]);
+
   const active = scoped.find((c) => c.id === activeId) ?? visible[0] ?? scoped[0] ?? null;
   const pendientes = scoped.filter((c) => c.status === "pendiente").length;
 
   const send = () => {
     if (!draft.trim() || !active) return;
-    updateConversation(active.id, {
-      unread: false,
-      status: "en_proceso",
-      messages: [
-        ...active.messages,
-        {
-          id: crypto.randomUUID(),
-          from: "yo",
-          text: draft.trim(),
-          at: new Date().toLocaleTimeString("es-BO", { hour: "2-digit", minute: "2-digit" }),
-        },
-      ],
+    updateConversation(active.id, { unread: false, status: "en_proceso" });
+    appendMessage(active.id, {
+      id: crypto.randomUUID(),
+      from: "yo",
+      text: draft.trim(),
+      at: new Date().toLocaleTimeString("es-BO", { hour: "2-digit", minute: "2-digit" }),
     });
     setDraft("");
     toast.success(`Respuesta enviada por ${networkLabels[active.network]}`);
@@ -132,6 +154,19 @@ export function Inbox({ channel }: { channel?: Network }) {
               className="w-60 bg-surface pl-9"
             />
           </div>
+          {(["todas", "alta", "media", "baja"] as const).map((p) => (
+            <button
+              key={p}
+              onClick={() => setPriorityFilter(p)}
+              className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
+                priorityFilter === p
+                  ? "border-accent bg-accent/15 text-accent"
+                  : "border-border text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {p === "todas" ? "Toda prioridad" : priorityLabels[p]}
+            </button>
+          ))}
           {!channel &&
             filters.map((f) => (
               <button
@@ -185,6 +220,7 @@ export function Inbox({ channel }: { channel?: Network }) {
                   {c.messages[c.messages.length - 1]!.text}
                 </span>
                 <span className="mt-2 flex flex-wrap items-center gap-1.5">
+                  <PriorityBadge priority={c.priority} />
                   <span
                     className={`rounded-full border px-1.5 py-0.5 text-[10px] ${statusClasses[c.status]}`}
                   >
@@ -216,12 +252,33 @@ export function Inbox({ channel }: { channel?: Network }) {
                   <div className="flex items-center gap-2">
                     <h2 className="text-base font-semibold">{active.person}</h2>
                     <NetworkBadge network={active.network} />
+                    <PriorityBadge priority={active.priority} />
                   </div>
                   <p className="text-xs text-muted-foreground">
                     {active.handle} · {active.kind}
                   </p>
                 </div>
-                <div className="ml-auto flex items-center gap-2">
+                <div className="ml-auto flex flex-wrap items-center gap-2">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline" size="sm">
+                        <Flag className="mr-1.5 h-3.5 w-3.5" />
+                        {priorityLabels[active.priority]}
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      {(["alta", "media", "baja"] as const).map((p) => (
+                        <DropdownMenuItem
+                          key={p}
+                          onClick={() => updateConversation(active.id, { priority: p })}
+                        >
+                          {active.priority === p && <Check className="mr-2 h-3.5 w-3.5" />}
+                          {priorityLabels[p]}
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="outline" size="sm">
