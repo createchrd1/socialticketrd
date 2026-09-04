@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Inbox, BarChart3, Radio, History, BellRing, SlidersHorizontal } from "lucide-react";
+import { Inbox, BarChart3, Radio, History, BellRing, SlidersHorizontal, Megaphone } from "lucide-react";
 import type { ReactNode } from "react";
 
 import { NetworkIcon } from "@/components/NetworkBadge";
@@ -59,6 +59,13 @@ export function AppShell({ children }: { children: ReactNode }) {
             >
               <SlidersHorizontal className="h-4 w-4" />
               <span className="hidden lg:inline">Reglas</span>
+            </Link>
+            <Link
+              to="/publicidad"
+              className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground data-[status=active]:bg-secondary data-[status=active]:text-foreground"
+            >
+              <Megaphone className="h-4 w-4" />
+              <span className="hidden lg:inline">Publicidad</span>
             </Link>
             <Link
               to="/panel"

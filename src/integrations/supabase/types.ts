@@ -14,10 +14,106 @@ export type Database = {
   }
   public: {
     Tables: {
+      ad_campaigns: {
+        Row: {
+          clicks: number
+          created_at: string
+          daily_budget: number
+          id: string
+          impressions: number
+          name: string
+          objective: string
+          platform: string
+          results: number
+          revenue: number
+          spend: number
+          started_on: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          clicks?: number
+          created_at?: string
+          daily_budget?: number
+          id?: string
+          impressions?: number
+          name: string
+          objective?: string
+          platform: string
+          results?: number
+          revenue?: number
+          spend?: number
+          started_on?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          clicks?: number
+          created_at?: string
+          daily_budget?: number
+          id?: string
+          impressions?: number
+          name?: string
+          objective?: string
+          platform?: string
+          results?: number
+          revenue?: number
+          spend?: number
+          started_on?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      ad_daily_stats: {
+        Row: {
+          campaign_id: string
+          clicks: number
+          created_at: string
+          day: string
+          id: string
+          impressions: number
+          results: number
+          revenue: number
+          spend: number
+        }
+        Insert: {
+          campaign_id: string
+          clicks?: number
+          created_at?: string
+          day: string
+          id?: string
+          impressions?: number
+          results?: number
+          revenue?: number
+          spend?: number
+        }
+        Update: {
+          campaign_id?: string
+          clicks?: number
+          created_at?: string
+          day?: string
+          id?: string
+          impressions?: number
+          results?: number
+          revenue?: number
+          spend?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ad_daily_stats_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "ad_campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       conversations: {
         Row: {
           assignee: string | null
           avatar_color: string
+          campaign_id: string | null
           created_at: string
           handle: string
           id: string
@@ -33,6 +129,7 @@ export type Database = {
         Insert: {
           assignee?: string | null
           avatar_color?: string
+          campaign_id?: string | null
           created_at?: string
           handle?: string
           id?: string
@@ -48,6 +145,7 @@ export type Database = {
         Update: {
           assignee?: string | null
           avatar_color?: string
+          campaign_id?: string | null
           created_at?: string
           handle?: string
           id?: string
@@ -60,7 +158,15 @@ export type Database = {
           unread?: boolean
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "conversations_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "ad_campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       messages: {
         Row: {

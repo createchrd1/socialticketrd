@@ -24,6 +24,7 @@ export type Conversation = {
   priority: Priority;
   assignee: string | null;
   tags: string[];
+  campaignId?: string | null;
   messages: Message[];
 };
 

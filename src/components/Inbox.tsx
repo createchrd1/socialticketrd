@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { suggestReply } from "@/lib/ai.functions";
 import { PriorityBadge } from "@/components/PriorityBadge";
+import { platformLabels, startAdsSync, useCampaigns } from "@/lib/ads-store";
 import {
   focusConversation,
   sortByPriority,
@@ -65,6 +66,9 @@ export function Inbox({ channel }: { channel?: Network }) {
   const [draft, setDraft] = useState("");
   const [loadingAi, setLoadingAi] = useState(false);
   const askAi = useServerFn(suggestReply);
+  const campaigns = useCampaigns();
+
+  useEffect(() => startAdsSync(), []);
 
   const scoped = useMemo(
     () => (channel ? items.filter((c) => c.network === channel) : items),
@@ -100,6 +104,8 @@ export function Inbox({ channel }: { channel?: Network }) {
   }, [focusId, scoped]);
 
   const active = scoped.find((c) => c.id === activeId) ?? visible[0] ?? scoped[0] ?? null;
+
+  const campaign = campaigns.find((c) => c.id === active?.campaignId) ?? null;
   const pendientes = scoped.filter((c) => c.status === "pendiente").length;
 
   const send = async () => {
@@ -256,6 +262,14 @@ export function Inbox({ channel }: { channel?: Network }) {
                   </div>
                   <p className="text-xs text-muted-foreground">
                     {active.handle} · {active.kind}
+                    {campaign && (
+                      <>
+                        {" · llegó desde "}
+                        <span className="text-accent">
+                          {platformLabels[campaign.platform]}: {campaign.name}
+                        </span>
+                      </>
+                    )}
                   </p>
                 </div>
                 <div className="ml-auto flex flex-wrap items-center gap-2">
