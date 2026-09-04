@@ -2,10 +2,10 @@ import { Link } from "@tanstack/react-router";
 import { Inbox, BarChart3, Radio } from "lucide-react";
 import type { ReactNode } from "react";
 
-const nav = [
-  { to: "/", label: "Bandeja", icon: Inbox },
-  { to: "/panel", label: "Panel", icon: BarChart3 },
-] as const;
+import { NetworkIcon } from "@/components/NetworkBadge";
+import { networkLabels, type Network } from "@/lib/demo-data";
+
+const channels: Network[] = ["instagram", "facebook", "x", "tiktok"];
 
 export function AppShell({ children }: { children: ReactNode }) {
   return (
@@ -18,18 +18,33 @@ export function AppShell({ children }: { children: ReactNode }) {
             </span>
             <span className="font-sans text-lg font-semibold tracking-tight">Señal</span>
           </div>
-          <nav className="flex items-center gap-1">
-            {nav.map(({ to, label, icon: Icon }) => (
+          <nav className="flex flex-wrap items-center gap-1">
+            <Link
+              to="/"
+              activeOptions={{ exact: true }}
+              className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground data-[status=active]:bg-secondary data-[status=active]:text-foreground"
+            >
+              <Inbox className="h-4 w-4" />
+              Bandeja
+            </Link>
+            {channels.map((n) => (
               <Link
-                key={to}
-                to={to}
-                activeOptions={{ exact: to === "/" }}
+                key={n}
+                to="/canal/$network"
+                params={{ network: n }}
                 className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground data-[status=active]:bg-secondary data-[status=active]:text-foreground"
               >
-                <Icon className="h-4 w-4" />
-                {label}
+                <NetworkIcon network={n} className="h-4 w-4" />
+                <span className="hidden md:inline">{networkLabels[n]}</span>
               </Link>
             ))}
+            <Link
+              to="/panel"
+              className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground data-[status=active]:bg-secondary data-[status=active]:text-foreground"
+            >
+              <BarChart3 className="h-4 w-4" />
+              Panel
+            </Link>
           </nav>
           <div className="ml-auto flex items-center gap-3">
             <span className="hidden rounded-full border border-border px-3 py-1 text-xs text-muted-foreground sm:inline">
