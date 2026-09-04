@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as HistorialRouteImport } from './routes/historial'
 import { Route as PanelRouteImport } from './routes/panel'
+import { Route as PublicidadRouteImport } from './routes/publicidad'
 import { Route as ReglasRouteImport } from './routes/reglas'
 import { Route as CanalNetworkRouteImport } from './routes/canal.$network'
 
@@ -30,6 +31,11 @@ const PanelRoute = PanelRouteImport.update({
   path: '/panel',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PublicidadRoute = PublicidadRouteImport.update({
+  id: '/publicidad',
+  path: '/publicidad',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ReglasRoute = ReglasRouteImport.update({
   id: '/reglas',
   path: '/reglas',
@@ -45,6 +51,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/historial': typeof HistorialRoute
   '/panel': typeof PanelRoute
+  '/publicidad': typeof PublicidadRoute
   '/reglas': typeof ReglasRoute
   '/canal/$network': typeof CanalNetworkRoute
 }
@@ -52,6 +59,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/historial': typeof HistorialRoute
   '/panel': typeof PanelRoute
+  '/publicidad': typeof PublicidadRoute
   '/reglas': typeof ReglasRoute
   '/canal/$network': typeof CanalNetworkRoute
 }
@@ -60,21 +68,42 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/historial': typeof HistorialRoute
   '/panel': typeof PanelRoute
+  '/publicidad': typeof PublicidadRoute
   '/reglas': typeof ReglasRoute
   '/canal/$network': typeof CanalNetworkRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/historial' | '/panel' | '/reglas' | '/canal/$network'
+  fullPaths:
+    | '/'
+    | '/historial'
+    | '/panel'
+    | '/publicidad'
+    | '/reglas'
+    | '/canal/$network'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/historial' | '/panel' | '/reglas' | '/canal/$network'
-  id: '__root__' | '/' | '/historial' | '/panel' | '/reglas' | '/canal/$network'
+  to:
+    | '/'
+    | '/historial'
+    | '/panel'
+    | '/publicidad'
+    | '/reglas'
+    | '/canal/$network'
+  id:
+    | '__root__'
+    | '/'
+    | '/historial'
+    | '/panel'
+    | '/publicidad'
+    | '/reglas'
+    | '/canal/$network'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   HistorialRoute: typeof HistorialRoute
   PanelRoute: typeof PanelRoute
+  PublicidadRoute: typeof PublicidadRoute
   ReglasRoute: typeof ReglasRoute
   CanalNetworkRoute: typeof CanalNetworkRoute
 }
@@ -102,6 +131,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PanelRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/publicidad': {
+      id: '/publicidad'
+      path: '/publicidad'
+      fullPath: '/publicidad'
+      preLoaderRoute: typeof PublicidadRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/reglas': {
       id: '/reglas'
       path: '/reglas'
@@ -123,6 +159,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   HistorialRoute: HistorialRoute,
   PanelRoute: PanelRoute,
+  PublicidadRoute: PublicidadRoute,
   ReglasRoute: ReglasRoute,
   CanalNetworkRoute: CanalNetworkRoute,
 }
